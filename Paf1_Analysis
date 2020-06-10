@@ -1,0 +1,285 @@
+load('fischl_NETseq.mat')
+load('fischl_paf1_NETseq.mat')
+load('harry_annotations.mat')
+load('BY_paf1_TEFseq.mat')
+load('WT_NETseqNoBacktrackReleaseParams_MovingStalledBacktracked.out')
+load('WT_GeneParamsBinned.mat')
+%%
+%Conditions_Processing_Script 
+% data=fischl_paf1_NETseq called=PAF1KO_NETseq and PAF1KO_NETseq_geneNames
+%Conditions_Processing_Script 
+% data=fischl_NETseq called=WT_NETseq and WT_NETseq_geneNames
+%Conditions_Processing_Script
+% data=BY_paf1_TEFseq called
+% Call it PAF1_TEFseq_large and PAF1_TEFseq_large_geneNames
+% block out 'chosen_annotations =
+% find_expressingGenes(chosen_annotations,data);' line 20
+
+%% Binning and Normalising PAF1KO
+PAF1KO_NS_Exp_Binned = zeros (1000:100);
+for bindex=1:100
+    gbin = ((bindex*10)-9):bindex*10 ;
+    PAF1KO_NS_Exp_Binned(:,bindex)=sum(PAF1KO_NETseq(:,gbin),2);
+end
+PAF1KO_Exp=PAF1KO_NS_Exp_Binned(ismember(PAF1KO_NETseq_geneNames,WT_NETseq_geneNames)==1,:);
+%PAF1KO_Exp_NS=((PAF1KO_Exp(:,3:100)) ./ sum(PAF1KO_Exp(:,3:100),2));
+PAF1KO_Exp_NS=((PAF1KO_Exp - mean(PAF1KO_Exp,2))) ./ (std(PAF1KO_Exp,0,2));
+
+WT_NS_Exp_Binned = zeros (1000:100);
+for bindex=1:100
+    gbin = ((bindex*10)-9):bindex*10 ;
+    WT_NS_Exp_Binned(:,bindex)=sum(WT_NETseq(:,gbin),2);
+end
+WT_Exp=WT_NS_Exp_Binned(ismember(WT_NETseq_geneNames,PAF1KO_NETseq_geneNames)==1,:);
+%WT_Exp_NS=((WT_Exp(:,3:100)) ./ sum(WT_Exp(:,3:100),2));
+WT_Exp_NS=((WT_Exp - mean(WT_Exp,2))) ./ (std(WT_Exp,0,2));
+
+%% Clustering WT and PAF1 NETseq data
+%%% eval step
+PAF1_GeneNames=PAF1KO_NETseq_geneNames(ismember(PAF1KO_NETseq_geneNames,WT_NETseq_geneNames)==1,:);
+%Index_WT=kmeans(WT_Exp_NS,3);
+WT_C1=WT_Exp_NS(Index_WT==3,:);
+C1_Names=PAF1_GeneNames(Index_WT==3,:);
+WT_C2=WT_Exp_NS(Index_WT==1,:);
+C2_Names=PAF1_GeneNames(Index_WT==1,:);
+WT_C3=WT_Exp_NS(Index_WT==2,:);
+C3_Names=PAF1_GeneNames(Index_WT==2,:);
+%% Getting unbinned data into clusters.
+% Clusters are obtained with binned data so have to bin first
+% in order to get the appropriate index.
+% Then the index can be used to extract unbinned clusters.
+WT_P_ub=WT_NETseq(ismember(WT_NETseq_geneNames,PAF1KO_NETseq_geneNames)==1,:);
+PAF1_P_ub=PAF1KO_NETseq(ismember(PAF1KO_NETseq_geneNames,WT_NETseq_geneNames)==1,:);
+
+WTC1_ub=WT_P_ub(Index_WT==3,:);
+WTC2_ub=WT_P_ub(Index_WT==1,:);
+WTC3_ub=WT_P_ub(Index_WT==2,:);
+
+PAF1KO_WTC1_ub=PAF1_P_ub(Index_WT==3,:);
+PAF1KO_WTC2_ub=PAF1_P_ub(Index_WT==1,:);
+PAF1KO_WTC3_ub=PAF1_P_ub(Index_WT==2,:);
+
+%% Extract PAF1KO data for the WT clusters
+PAF1KOB_WTC1=PAF1KO_Exp_NS(Index_WT==3,:);
+PAF1KOB_WTC2=PAF1KO_Exp_NS(Index_WT==1,:);
+PAF1KOB_WTC3=PAF1KO_Exp_NS(Index_WT==2,:); 
+%% Run PAF1TEFseqBigwig, then Conditions Processing Script 
+PAF1_TS_Binned = zeros (1000:100);
+for bindex=1:100
+    gbin = ((bindex*10)-9):bindex*10 ;
+    PAF1_TS_Binned(:,bindex)=sum(PAF1_TEFseq_large(:,gbin),2);
+end
+PAF1_TEFseq=PAF1_TS_Binned(ismember(PAF1_TEFseq_large_geneNames,PAF1KO_NETseq_geneNames)==1,:);
+PAF1_TEFseq_NN=PAF1_TEFseq(ismember(PAF1KO_NETseq_geneNames,WT_NETseq_geneNames)==1,:);
+PAF1_TEFseq_NN(PAF1_TEFseq_NN<0)=0;
+% Extract TEFseq reads for each cluster
+PAF1TS_WTC1=PAF1_TEFseq_NN(Index_WT==3,:);
+PAF1TS_WTC2=PAF1_TEFseq_NN(Index_WT==1,:);
+PAF1TS_WTC3=PAF1_TEFseq_NN(Index_WT==2,:);
+
+%% Plotting all the data:
+figure
+tiledlayout(1,2)
+nexttile
+plot(mean(WT_C1))
+hold on
+plot(mean(WT_C2))
+plot(mean(WT_C3))
+title({'a) WT Metagene NET-seq Plot'; 'for PAF1 experiment'}, 'FontSize', 14);
+xlabel('Gene Coordinate/bp', 'FontSize', 12)
+ylabel({'Normalised'; 'NETSeq Reads'}, 'FontSize', 12)
+xticks([0 10 20 30 40 50 60 70 80 90 100])
+xticklabels({'TSS', '100', '200', '300', '400', '500', '600' '700' '800' '900' '1000'})
+legend('Early - 258', 'Middle - 609', 'Late - 465', 'Fontsize', 9)
+hold off
+nexttile
+plot(mean(PAF1TS_WTC1))
+hold on
+plot(mean(PAF1TS_WTC2))
+plot(mean(PAF1TS_WTC3))
+title({'b) Metagenes of PAF1 Levels'; 'for WT Clusters'}, 'FontSize', 14);
+xlabel('Gene Coordinate/bp', 'FontSize', 12)
+ylabel({'Levels of PAF1 relative to RNAPII'; '(TEFseq Reads)'}, 'FontSize', 12)
+xticks([0 10 20 30 40 50 60 70 80 90 100])
+xticklabels({'TSS', '100', '200', '300', '400', '500', '600' '700' '800' '900' '1000'})
+hold off
+%%
+figure
+tiledlayout(2,2)
+nexttile
+plot(mean(WT_Exp_NS), 'k');
+hold on
+plot(mean(PAF1KO_Exp_NS), 'm');
+title({'c) Metagene of {\it S. cerevisiae}'; 'WT and PAF1\Delta'}, 'FontSize', 14);
+xlabel('Gene Coordinate/bp', 'FontSize', 12);
+ylabel({'Normalised'; 'NETSeq Reads'}, 'FontSize', 12);
+%ylim([-0.02, 0.1]);
+xticks([0 10  20 30 40 50 60 70 80 90 100])
+xticklabels({'TSS', '100' '200', '300', '400', '500', '600' '700' '800' '900' '1000'})
+legend ('WT', 'PAF1\Delta', 'Fontsize', 9)
+hold off
+nexttile
+plot(mean(WT_C1), 'k')
+hold on
+plot(mean(PAF1KOB_WTC1), 'm')
+title('d) Early Cluster', 'FontSize', 14)
+xlabel('Gene Coordinate/bp', 'FontSize', 12)
+ylabel({'Normalised'; 'NETSeq Reads'}, 'FontSize', 12)
+%ylim([-0.02, 0.1]);
+xticks([0 10 20 30 40 50 60 70 80 90 100])
+xticklabels({'TSS', '100', '200', '300', '400', '500', '600' '700' '800' '900' '1000'})
+hold off
+nexttile
+plot(mean(WT_C2), 'k')
+hold on
+plot(mean(PAF1KOB_WTC2), 'm')
+title('e) Middle Cluster', 'FontSize', 14)
+xlabel('Gene Coordinate/bp', 'FontSize', 12)
+ylabel({'Normalised'; 'NETSeq Reads'}, 'FontSize', 12)
+%ylim([-0.02, 0.1]);
+xticks([0 10 20 30 40 50 60 70 80 90 100])
+xticklabels({'TSS', '100', '200', '300', '400', '500', '600' '700' '800' '900' '1000'})
+hold off
+nexttile
+plot(mean(WT_C3), 'k')
+hold on
+plot(mean(PAF1KOB_WTC3), 'm')
+title('f) Late Cluster', 'FontSize', 14)
+xlabel('Gene Coordinate/bp', 'FontSize', 12)
+ylabel({'Normalised'; 'NETSeq Reads'}, 'FontSize', 12)
+%ylim([-0.02, 0.1]);
+xticks([0 10 20 30 40 50 60 70 80 90 100])
+xticklabels({'TSS', '100', '200', '300', '400', '500', '600' '700' '800' '900' '1000'})
+hold off
+
+%% Fold Change and Difference 
+% Fold Change in Profile
+FCP_PAF1KO=abs(PAF1KO_Exp_NS ./ WT_Exp_NS);
+FCP_PAF1KO(FCP_PAF1KO==0)=NaN;
+FCP_PAF1KO(~isfinite(FCP_PAF1KO))=NaN;
+% Fold Change in Reads
+FCR_PAF1KO=(PAF1KO_Exp ./ WT_Exp);
+FCR_PAF1KO(FCR_PAF1KO==0)=NaN;
+FCR_PAF1KO(~isfinite(FCR_PAF1KO))=NaN;
+% 
+FCP_WTC1=FCP_PAF1KO(Index_WT==3,:);
+FCP_WTC2=FCP_PAF1KO(Index_WT==1,:);
+FCP_WTC3=FCP_PAF1KO(Index_WT==2,:);
+%
+FCR_WTC1=FCR_PAF1KO(Index_WT==3,:);
+FCR_WTC2=FCR_PAF1KO(Index_WT==1,:);
+FCR_WTC3=FCR_PAF1KO(Index_WT==2,:);
+% Difference from WT -> PAF1KO
+% Normalised - difference in profile
+DP_PAF1KO=(PAF1KO_Exp_NS - WT_Exp_NS);
+DP_PAF1KO(DP_PAF1KO==0)=NaN;
+DP_PAF1KO(~isfinite(DP_PAF1KO))=NaN;
+DP_WTC1=DP_PAF1KO(Index_WT==3,:);
+DP_WTC2=DP_PAF1KO(Index_WT==1,:);
+DP_WTC3=DP_PAF1KO(Index_WT==2,:);
+% Not normalised - difference in reads 
+DR_PAF1KO=(PAF1KO_Exp - WT_Exp);
+DR_PAF1KO(DR_PAF1KO==0)=NaN;
+DR_WTC1=DR_PAF1KO(Index_WT==3,:);
+DR_WTC2=DR_PAF1KO(Index_WT==1,:);
+DR_WTC3=DR_PAF1KO(Index_WT==2,:);
+%[R,P] = corrcoef(Fold_Change_PAF1KO,PAF1_TEFseq_WTgenes(:,3:100));
+
+
+%% Correlation of positive and negative values
+% X_PAF1KO and X_WTC1 (for all clusters)
+% Change X to FCP, DP, FCR, DR to investigate Fold Change Profile,
+% Difference Profile, Fold Change Reads and Difference Reads respectively
+% For Fold Change, positive and negative change is determined by values
+% greater or less than 1, not 0, so change accordingly. 
+
+%Each position (A for all)
+A=DP_PAF1KO(:);
+ATF=PAF1_TEFseq_NN(:);
+ATF(ATF==0)=NaN;
+
+E=DP_WTC1(:);
+ETF=PAF1TS_WTC1(:);
+ETF(ETF==0)=NaN;
+
+M=DP_WTC2(:);
+MTF=PAF1TS_WTC2(:);
+MTF(MTF==0)=NaN;
+
+L=DP_WTC3(:);
+LTF=PAF1TS_WTC3(:);
+LTF(LTF==0)=NaN;
+
+
+%% Correlation of negative reads
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(ATF(A<0,:)))),real(log(abs(A(A<0,:)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(PAF1 Levels (TEFseq Reads))', 'FontSize', 12);
+ylabel('log(-ve Difference (NETseq Reads))', 'FontSize', 12);
+nexttile
+scatter(real(log(abs(ETF(E<0,:)))),real(log(abs(E(E<0,:)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(PAF1 Levels (TEFseq Reads))', 'FontSize', 12);
+ylabel('log(-ve Difference (NETseq Reads))', 'FontSize', 12);
+nexttile
+scatter(real(log(abs(MTF(M<0,:)))),real(log(abs(M(M<0,:)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(PAF1 Levels (TEFseq Reads))', 'FontSize', 12);
+ylabel('log(-ve Difference (NETseq Reads))', 'FontSize', 12);
+nexttile
+scatter(real(log(abs(LTF(L<0,:)))),real(log(abs(L(L<0,:)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(PAF1 Levels (TEFseq Reads))', 'FontSize', 12);
+ylabel('log(-ve Difference (NETseq Reads))', 'FontSize', 12);
+
+
+
+%% Correlations of positive reads
+
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(ATF(A>0,:)))),real(log(abs(A(A>0,:)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(PAF1 Levels (TEFseq Reads))', 'FontSize', 12);
+ylabel('log(+ve Difference (NETseq Reads))', 'FontSize', 12);
+nexttile
+scatter(real(log(abs(ETF(E>0,:)))),real(log(abs(E(E>0,:)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(PAF1 Levels (TEFseq Reads))', 'FontSize', 12);
+ylabel('log(+ve Difference (NETseq Reads))', 'FontSize', 12);
+nexttile
+scatter(real(log(abs(MTF(M>0,:)))),real(log(abs(M(M>0,:)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(PAF1 Levels (TEFseq Reads))', 'FontSize', 12);
+ylabel('log(+ve Difference (NETseq Reads))', 'FontSize', 12);
+nexttile
+scatter(real(log(abs(LTF(L>0,:)))),real(log(abs(L(L>0,:)))), 6);
+title('Late Genes', 'FontSize', 15);
+xlabel('log(PAF1 Levels (TEFseq Reads))', 'FontSize', 12);
+ylabel('log(+ve Difference (NETseq Reads))', 'FontSize', 12);
+
+%% Block out where necessary to get all genes, early, middle and late correlations
+%[R1,P1] = corrcoef(real(log(abs(ATF(A<0,:)))),real(log(abs(A(A<0,:)))), 'Rows', 'complete')
+%[R2,P2] = corrcoef(real(log(abs(ATF(A>0,:)))),real(log(abs(A(A>0,:)))), 'Rows', 'complete')
+%[R1,P1] = corrcoef(real(log(abs(ETF(E<0,:)))),real(log(abs(E(E<0,:)))), 'Rows', 'complete')
+%[R2,P2] = corrcoef(real(log(abs(ETF(E>0,:)))),real(log(abs(E(E>0,:)))), 'Rows', 'complete')
+%[R1,P1] = corrcoef(real(log(abs(MTF(M<0,:)))),real(log(abs(M(M<0,:)))), 'Rows', 'complete')
+%[R2,P2] = corrcoef(real(log(abs(MTF(M>0,:)))),real(log(abs(M(M>0,:)))), 'Rows', 'complete')
+%[R1,P1] = corrcoef(real(log(abs(LTF(L<0,:)))),real(log(abs(L(L<0,:)))), 'Rows', 'complete')
+%[R2,P2] = corrcoef(real(log(abs(LTF(L>0,:)))),real(log(abs(L(L>0,:)))), 'Rows', 'complete')
+
+%% To see how many positive and negative reads change X
+% to FCP, FCR, DP, DR for each one. Ensure the limit is 1
+% for Fold Change or 0 for Difference
+
+s1=sum(X_WTC1(:)>0)
+s2=sum(X_WTC1(:)<0)
+s3=sum(X_WTC2(:)>0)
+s4=sum(X_WTC2(:)<0)
+s5=sum(X_WTC3(:)>0)
+s6=sum(X_WTC3(:)<0)
+
