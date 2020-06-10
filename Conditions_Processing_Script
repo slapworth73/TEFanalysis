@@ -1,0 +1,54 @@
+num_bins = 1000;
+
+chosen_genes = harry_annotations;
+
+data = fischl_NETseq
+
+
+chosen_annotations = remove_overlapping(chosen_genes);
+
+%Select only genes > 1000bp;
+for chr=1:size(chosen_genes,1)
+    for strand=1:2
+        idx = abs(chosen_annotations{chr,strand}(:,1)-chosen_annotations{chr,strand}(:,2))>1000;
+        chosen_annotations{chr,strand} = chosen_annotations{chr,strand}(idx,:);
+        chosen_annotations{chr,strand+2} = chosen_annotations{chr,strand+2}(idx);
+    end
+end
+%%
+chosen_annotations = Find_ExpressingGenes(chosen_annotations,data);
+
+num_genes = 0;
+for chr=1:size(chosen_annotations,1)
+    for strand=1:2
+        num_genes = num_genes + size(chosen_annotations{chr,strand},1);
+    end
+end
+
+WT_NETseq= nan(num_genes,num_bins);
+WT_NETseq_geneNames = cell(num_genes,1);
+
+k=1;
+for chr=1:size(chosen_annotations,1);
+    strand=1;
+    for gene=1:size(chosen_annotations{chr,strand},1);
+        gene_length = abs(chosen_annotations{chr,strand}(gene,1)-chosen_annotations{chr,strand}(gene,2));
+        TU_start = min(chosen_annotations{chr,strand}(gene,1),chosen_annotations{chr,strand}(gene,2));
+        TU_end= max(chosen_annotations{chr,strand}(gene,1),chosen_annotations{chr,strand}(gene,2));
+        WT_NETseq(k,1:num_bins)=bin_data(data{chr,strand}(TU_start:TU_start+1000)',num_bins);
+        WT_NETseq_geneNames{k}=chosen_annotations{chr,strand+2}{gene};
+        k=k+1;
+    end
+   
+    strand=2;
+    for gene=1:size(chosen_annotations{chr,strand},1);
+        gene_length = abs(chosen_annotations{chr,strand}(gene,1)-chosen_annotations{chr,strand}(gene,2));
+        TU_start = min(chosen_annotations{chr,strand}(gene,1),chosen_annotations{chr,strand}(gene,2));
+        TU_end= max(chosen_annotations{chr,strand}(gene,1),chosen_annotations{chr,strand}(gene,2));
+        WT_NETseq(k,1:num_bins)=bin_data(fliplr(data{chr,strand}(TU_end-1000:TU_end)'),num_bins);
+        WT_NETseq_geneNames{k}=chosen_annotations{chr,strand+2}{gene};
+        k=k+1;
+    end
+    disp(chr);
+end
+%%
