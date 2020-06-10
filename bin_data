@@ -1,0 +1,10 @@
+function [binned_vector] = bin_data(input_vector,num_bins)
+
+vector_length = length(input_vector);
+binned_vector = zeros(1,num_bins);
+for i=1:num_bins
+    binned_vector(i) = sum(input_vector(ceil((i-1)*vector_length/num_bins)+1:ceil((i)*vector_length/num_bins)));
+end
+
+
+end
