@@ -1,0 +1,586 @@
+% Correlation between position of most occupancy (TEFseq) and NETseq change
+[M,I]=max(PAF1_TEFseq_NN,[],2);
+
+MAX_TFV_WTC1=M(Index_WT==3,:);
+MAX_TFV_WTC2=M(Index_WT==1,:);
+MAX_TFV_WTC3=M(Index_WT==2,:);
+
+MAX_TFP_WTC1=I(Index_WT==3,:);
+MAX_TFP_WTC2=I(Index_WT==1,:);
+MAX_TFP_WTC3=I(Index_WT==2,:);
+
+%%
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(M)),real(log(I)), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(Max TEFseq Value)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(MAX_TFV_WTC1)),real(log(MAX_TFP_WTC1)), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(Max TEFseq Value)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(MAX_TFV_WTC2)),real(log(MAX_TFP_WTC2)), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(Max TEFseq Value)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(MAX_TFV_WTC3)),real(log(MAX_TFP_WTC3)), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(Max TEFseq Value)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+
+[R,P] = corrcoef(real(log(M)),real(log(I)), 'Rows', 'complete')
+[X,Y] = corrcoef(real(log(MAX_TFV_WTC1)),real(log(MAX_TFP_WTC1)), 'Rows', 'complete')
+[A,B] = corrcoef(real(log(MAX_TFV_WTC2)),real(log(MAX_TFP_WTC2)), 'Rows', 'complete')
+[C,D] = corrcoef(real(log(MAX_TFV_WTC3)),real(log(MAX_TFP_WTC3)), 'Rows', 'complete')
+
+
+%% Correlation between max TEFseq values and the change at that position
+
+FCP_MAXTF = zeros (1332:1);
+for mindex=1:size(M,1)
+    FCP_MAXTF(mindex,1)=FCP_PAF1KO(mindex,I(mindex,1));
+end
+FCP_MAXTF(FCP_MAXTF==0)=NaN;
+
+FCR_MAXTF = zeros (1332:1);
+for mindex=1:size(M,1)
+    FCR_MAXTF(mindex,1)=FCR_PAF1KO(mindex,I(mindex,1));
+end
+FCR_MAXTF(FCR_MAXTF==0)=NaN;
+
+DP_MAXTF = zeros (1332:1);
+for mindex=1:size(M,1)
+    DP_MAXTF(mindex,1)=DP_PAF1KO(mindex,I(mindex,1));
+end
+DP_MAXTF(DP_MAXTF==0)=NaN;
+
+DR_MAXTF = zeros (1332:1);
+for mindex=1:size(M,1)
+    DR_MAXTF(mindex,1)=DR_PAF1KO(mindex,I(mindex,1));
+end
+DR_MAXTF(DR_MAXTF==0)=NaN;
+
+%%
+% Correlating max tefseq position with fold change in profile
+
+FCP_MAXTF_WTC1=FCP_MAXTF(Index_WT==3,:);
+FCP_MAXTF_WTC2=FCP_MAXTF(Index_WT==1,:);
+FCP_MAXTF_WTC3=FCP_MAXTF(Index_WT==2,:);
+
+% for negative change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(FCP_MAXTF(FCP_MAXTF<1)))),real(abs(log(I(FCP_MAXTF<1)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(-ve Profile Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC1(FCP_MAXTF_WTC1<1)))),real(log(abs(MAX_TFP_WTC1(FCP_MAXTF_WTC1<1)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC2(FCP_MAXTF_WTC2<1)))),real(log(abs(MAX_TFP_WTC2(FCP_MAXTF_WTC2<1)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC3(FCP_MAXTF_WTC3<1)))),real(log(abs(MAX_TFP_WTC3(FCP_MAXTF_WTC3<1)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+
+[R1,P1] = corrcoef(real(log(abs(FCP_MAXTF(FCP_MAXTF<1)))),real(log(abs(I(FCP_MAXTF<1)))), 'Rows', 'complete')
+[X1,Y1] = corrcoef(real(log(abs(FCP_MAXTF_WTC1(FCP_MAXTF_WTC1<1)))),real(log(abs(MAX_TFP_WTC1(FCP_MAXTF_WTC1<1)))), 'Rows', 'complete')
+[A1,B1] = corrcoef(real(log(abs(FCP_MAXTF_WTC2(FCP_MAXTF_WTC2<1)))),real(log(abs(MAX_TFP_WTC2(FCP_MAXTF_WTC2<1)))), 'Rows', 'complete')
+[C1,D1] = corrcoef(real(log(abs(FCP_MAXTF_WTC3(FCP_MAXTF_WTC3<1)))),real(log(abs(MAX_TFP_WTC3(FCP_MAXTF_WTC3<1)))), 'Rows', 'complete')
+
+% for positive change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(FCP_MAXTF(FCP_MAXTF>1)))),real(log(abs(I(FCP_MAXTF>1)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(+ve Profile Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC1(FCP_MAXTF_WTC1>1)))),real(log(abs(MAX_TFP_WTC1(FCP_MAXTF_WTC1>1)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC2(FCP_MAXTF_WTC2>1)))),real(log(abs(MAX_TFP_WTC2(FCP_MAXTF_WTC2>1)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC3(FCP_MAXTF_WTC3>1)))),real(log(abs(MAX_TFP_WTC3(FCP_MAXTF_WTC3>1)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+
+[R2,P2] = corrcoef(real(log(abs(FCP_MAXTF(FCP_MAXTF>1)))),real(abs(log(I(FCP_MAXTF>1)))), 'Rows', 'complete')
+[X2,Y2] = corrcoef(real(log(abs(FCP_MAXTF_WTC1(FCP_MAXTF_WTC1>1)))),real(abs(log(MAX_TFP_WTC1(FCP_MAXTF_WTC1>1)))), 'Rows', 'complete')
+[A2,B2] = corrcoef(real(log(abs(FCP_MAXTF_WTC2(FCP_MAXTF_WTC2>1)))),real(abs(log(MAX_TFP_WTC2(FCP_MAXTF_WTC2>1)))), 'Rows', 'complete')
+[C2,D2] = corrcoef(real(log(abs(FCP_MAXTF_WTC3(FCP_MAXTF_WTC3>1)))),real(abs(log(MAX_TFP_WTC3(FCP_MAXTF_WTC3>1)))), 'Rows', 'complete')
+
+
+%%
+% Correlating max tefseq amount with fold change in profile
+
+%for negative change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(FCP_MAXTF(FCP_MAXTF<1)))),real(abs(log(M(FCP_MAXTF<1)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(-ve Profile Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC1(FCP_MAXTF_WTC1<1)))),real(abs(log(MAX_TFV_WTC1(FCP_MAXTF_WTC1<1)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC2(FCP_MAXTF_WTC2<1)))),real(log(abs(MAX_TFV_WTC2(FCP_MAXTF_WTC2<1)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC3(FCP_MAXTF_WTC3<1)))),real(log(abs(MAX_TFV_WTC3(FCP_MAXTF_WTC3<1)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+
+[R1,P1] = corrcoef(real(log(abs(FCP_MAXTF(FCP_MAXTF<1)))),real(log(abs(M(FCP_MAXTF<1)))), 'Rows', 'complete')
+[X1,Y1] = corrcoef(real(log(abs(FCP_MAXTF_WTC1(FCP_MAXTF_WTC1<1)))),real(log(abs(MAX_TFV_WTC1(FCP_MAXTF_WTC1<1)))), 'Rows', 'complete')
+[A1,B1] = corrcoef(real(log(abs(FCP_MAXTF_WTC2(FCP_MAXTF_WTC2<1)))),real(log(abs(MAX_TFV_WTC2(FCP_MAXTF_WTC2<1)))), 'Rows', 'complete')
+[C1,D1] = corrcoef(real(log(abs(FCP_MAXTF_WTC3(FCP_MAXTF_WTC3<1)))),real(log(abs(MAX_TFV_WTC3(FCP_MAXTF_WTC3<1)))), 'Rows', 'complete')
+
+% for positive change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(FCP_MAXTF(FCP_MAXTF>1)))),real(log(abs(M(FCP_MAXTF>1)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(+ve Profile Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC1(FCP_MAXTF_WTC1>1)))),real(log(abs(MAX_TFV_WTC1(FCP_MAXTF_WTC1>1)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC2(FCP_MAXTF_WTC2>1)))),real(log(abs(MAX_TFV_WTC2(FCP_MAXTF_WTC2>1)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCP_MAXTF_WTC3(FCP_MAXTF_WTC3>1)))),real(log(abs(MAX_TFV_WTC3(FCP_MAXTF_WTC3>1)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+
+[R2,P2] = corrcoef(real(log(abs(FCP_MAXTF(FCP_MAXTF>1)))),real(log(abs(M(FCP_MAXTF>1)))), 'Rows', 'complete')
+[X2,Y2] = corrcoef(real(log(abs(FCP_MAXTF_WTC1(FCP_MAXTF_WTC1>1)))),real(log(abs(MAX_TFV_WTC1(FCP_MAXTF_WTC1>1)))), 'Rows', 'complete')
+[A2,B2] = corrcoef(real(log(abs(FCP_MAXTF_WTC2(FCP_MAXTF_WTC2>1)))),real(log(abs(MAX_TFV_WTC2(FCP_MAXTF_WTC2>1)))), 'Rows', 'complete')
+[C2,D2] = corrcoef(real(log(abs(FCP_MAXTF_WTC3(FCP_MAXTF_WTC3>1)))),real(log(abs(MAX_TFV_WTC3(FCP_MAXTF_WTC3>1)))), 'Rows', 'complete')
+
+
+%% 
+% Correlating max tefseq position with fold change in reads
+FCR_MAXTF_WTC1=FCR_MAXTF(Index_WT==3,:);
+FCR_MAXTF_WTC2=FCR_MAXTF(Index_WT==1,:);
+FCR_MAXTF_WTC3=FCR_MAXTF(Index_WT==2,:);
+
+% for negative change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(FCR_MAXTF(FCR_MAXTF<1)))),real(log(abs(I(FCR_MAXTF<1)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(-ve Reads Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC1(FCR_MAXTF_WTC1<1)))),real(log(abs(MAX_TFP_WTC1(FCR_MAXTF_WTC1<1)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC2(FCR_MAXTF_WTC2<1)))),real(log(abs(MAX_TFP_WTC2(FCR_MAXTF_WTC2<1)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC3(FCR_MAXTF_WTC3<1)))),real(log(abs(MAX_TFP_WTC3(FCR_MAXTF_WTC3<1)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+
+[R1,P1] = corrcoef(real(log(abs(FCR_MAXTF(FCR_MAXTF<1)))),real(log(abs(I(FCR_MAXTF<1)))), 'Rows', 'complete')
+[X1,Y1] = corrcoef(real(log(abs(FCR_MAXTF_WTC1(FCR_MAXTF_WTC1<1)))),real(log(abs(MAX_TFP_WTC1(FCR_MAXTF_WTC1<1)))), 'Rows', 'complete')
+[A1,B1] = corrcoef(real(log(abs(FCR_MAXTF_WTC2(FCR_MAXTF_WTC2<1)))),real(log(abs(MAX_TFP_WTC2(FCR_MAXTF_WTC2<1)))), 'Rows', 'complete')
+[C1,D1] = corrcoef(real(log(abs(FCR_MAXTF_WTC3(FCR_MAXTF_WTC3<1)))),real(log(abs(MAX_TFP_WTC3(FCR_MAXTF_WTC3<1)))), 'Rows', 'complete')
+
+% for positive change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(FCR_MAXTF(FCR_MAXTF>1)))),real(log(abs(I(FCR_MAXTF>1)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(+ve Reads Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC1(FCR_MAXTF_WTC1>1)))),real(log(abs(MAX_TFP_WTC1(FCR_MAXTF_WTC1>1)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC2(FCR_MAXTF_WTC2>1)))),real(log(abs(MAX_TFP_WTC2(FCR_MAXTF_WTC2>1)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC3(FCR_MAXTF_WTC3>1)))),real(log(abs(MAX_TFP_WTC3(FCR_MAXTF_WTC3>1)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Fold Change)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+
+[R2,P2] = corrcoef(real(log(abs(FCR_MAXTF(FCR_MAXTF>1)))),real(log(abs(I(FCR_MAXTF>1)))), 'Rows', 'complete')
+[X2,Y2] = corrcoef(real(log(abs(FCR_MAXTF_WTC1(FCR_MAXTF_WTC1>1)))),real(log(abs(MAX_TFP_WTC1(FCR_MAXTF_WTC1>1)))), 'Rows', 'complete')
+[A2,B2] = corrcoef(real(log(abs(FCR_MAXTF_WTC2(FCR_MAXTF_WTC2>1)))),real(log(abs(MAX_TFP_WTC2(FCR_MAXTF_WTC2>1)))), 'Rows', 'complete')
+[C2,D2] = corrcoef(real(log(abs(FCR_MAXTF_WTC3(FCR_MAXTF_WTC3>1)))),real(log(abs(MAX_TFP_WTC3(FCR_MAXTF_WTC3>1)))), 'Rows', 'complete')
+
+
+%%
+% Correlating max tefseq amount with fold change in reads
+
+%for negative change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(FCR_MAXTF(FCR_MAXTF<1)))),real(log(abs(M(FCR_MAXTF<1)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(-ve Reads Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC1(FCR_MAXTF_WTC1<1)))),real(log(abs(MAX_TFV_WTC1(FCR_MAXTF_WTC1<1)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC2(FCR_MAXTF_WTC2<1)))),real(log(abs(MAX_TFV_WTC2(FCR_MAXTF_WTC2<1)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC3(FCR_MAXTF_WTC3<1)))),real(log(abs(MAX_TFV_WTC3(FCR_MAXTF_WTC3<1)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+
+[R1,P1] = corrcoef(real(log(abs(FCR_MAXTF(FCR_MAXTF<1)))),real(log(abs(M(FCR_MAXTF<1)))), 'Rows', 'complete')
+[X1,Y1] = corrcoef(real(log(abs(FCR_MAXTF_WTC1(FCR_MAXTF_WTC1<1)))),real(log(abs(MAX_TFV_WTC1(FCR_MAXTF_WTC1<1)))), 'Rows', 'complete')
+[A1,B1] = corrcoef(real(log(abs(FCR_MAXTF_WTC2(FCR_MAXTF_WTC2<1)))),real(log(abs(MAX_TFV_WTC2(FCR_MAXTF_WTC2<1)))), 'Rows', 'complete')
+[C1,D1] = corrcoef(real(log(abs(FCR_MAXTF_WTC3(FCR_MAXTF_WTC3<1)))),real(log(abs(MAX_TFV_WTC3(FCR_MAXTF_WTC3<1)))), 'Rows', 'complete')
+
+% for positive change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(FCR_MAXTF(FCR_MAXTF>1)))),real(log(abs(M(FCR_MAXTF>1)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(+ve Reads Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC1(FCR_MAXTF_WTC1>1)))),real(log(abs(MAX_TFV_WTC1(FCR_MAXTF_WTC1>1)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC2(FCR_MAXTF_WTC2>1)))),real(log(abs(MAX_TFV_WTC2(FCR_MAXTF_WTC2>1)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(FCR_MAXTF_WTC3(FCR_MAXTF_WTC3>1)))),real(log(abs(MAX_TFV_WTC3(FCR_MAXTF_WTC3>1)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Fold Change)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+
+[R2,P2] = corrcoef(real(log(abs(FCR_MAXTF(FCR_MAXTF>1)))),real(log(abs(M(FCR_MAXTF>1)))), 'Rows', 'complete')
+[X2,Y2] = corrcoef(real(log(abs(FCR_MAXTF_WTC1(FCR_MAXTF_WTC1>1)))),real(log(abs(MAX_TFV_WTC1(FCR_MAXTF_WTC1>1)))), 'Rows', 'complete')
+[A2,B2] = corrcoef(real(log(abs(FCR_MAXTF_WTC2(FCR_MAXTF_WTC2>1)))),real(log(abs(MAX_TFV_WTC2(FCR_MAXTF_WTC2>1)))), 'Rows', 'complete')
+[C2,D2] = corrcoef(real(log(abs(FCR_MAXTF_WTC3(FCR_MAXTF_WTC3>1)))),real(log(abs(MAX_TFV_WTC3(FCR_MAXTF_WTC3>1)))), 'Rows', 'complete')
+
+%%
+% Correlating max tefseq position with difference in profile
+
+DP_MAXTF_WTC1=DP_MAXTF(Index_WT==3,:);
+DP_MAXTF_WTC2=DP_MAXTF(Index_WT==1,:);
+DP_MAXTF_WTC3=DP_MAXTF(Index_WT==2,:);
+
+% for negative change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(DP_MAXTF(DP_MAXTF<0)))),real(log(abs(I(DP_MAXTF<0)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(-ve Profile Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC1(DP_MAXTF_WTC1<0)))),real(log(abs(MAX_TFP_WTC1(DP_MAXTF_WTC1<0)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC2(DP_MAXTF_WTC2<0)))),real(log(abs(MAX_TFP_WTC2(DP_MAXTF_WTC2<0)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC3(DP_MAXTF_WTC3<0)))),real(log(abs(MAX_TFP_WTC3(DP_MAXTF_WTC3<0)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+
+[R1,P1] = corrcoef(real(log(abs(DP_MAXTF(DP_MAXTF<0)))),real(log(abs(I(DP_MAXTF<0)))), 'Rows', 'complete')
+[X1,Y1] = corrcoef(real(log(abs(DP_MAXTF_WTC1(DP_MAXTF_WTC1<0)))),real(log(abs(MAX_TFP_WTC1(DP_MAXTF_WTC1<0)))), 'Rows', 'complete')
+[A1,B1] = corrcoef(real(log(abs(DP_MAXTF_WTC2(DP_MAXTF_WTC2<0)))),real(log(abs(MAX_TFP_WTC2(DP_MAXTF_WTC2<0)))), 'Rows', 'complete')
+[C1,D1] = corrcoef(real(log(abs(DP_MAXTF_WTC3(DP_MAXTF_WTC3<0)))),real(log(abs(MAX_TFP_WTC3(DP_MAXTF_WTC3<0)))), 'Rows', 'complete')
+
+% for positive change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(DP_MAXTF(DP_MAXTF>0)))),real(log(abs(I(DP_MAXTF>0)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(+ve Profile Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC1(DP_MAXTF_WTC1>0)))),real(log(abs(MAX_TFP_WTC1(DP_MAXTF_WTC1>0)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC2(DP_MAXTF_WTC2>0)))),real(log(abs(MAX_TFP_WTC2(DP_MAXTF_WTC2>0)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC3(DP_MAXTF_WTC3>0)))),real(log(abs(MAX_TFP_WTC3(DP_MAXTF_WTC3>0)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+
+[R2,P2] = corrcoef(real(log(abs(DP_MAXTF(DP_MAXTF>0)))),real(log(abs(I(DP_MAXTF>0)))), 'Rows', 'complete')
+[X2,Y2] = corrcoef(real(log(abs(DP_MAXTF_WTC1(DP_MAXTF_WTC1>0)))),real(log(abs(MAX_TFP_WTC1(DP_MAXTF_WTC1>0)))), 'Rows', 'complete')
+[A2,B2] = corrcoef(real(log(abs(DP_MAXTF_WTC2(DP_MAXTF_WTC2>0)))),real(log(abs(MAX_TFP_WTC2(DP_MAXTF_WTC2>0)))), 'Rows', 'complete')
+[C2,D2] = corrcoef(real(log(abs(DP_MAXTF_WTC3(DP_MAXTF_WTC3>0)))),real(log(abs(MAX_TFP_WTC3(DP_MAXTF_WTC3>0)))), 'Rows', 'complete')
+
+
+%%
+% Correlating max tefseq amount with difference in profile
+
+%for negative change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(DP_MAXTF(DP_MAXTF<0)))),real(log(abs(M(DP_MAXTF<0)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(-ve Profile Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC1(DP_MAXTF_WTC1<0)))),real(log(abs(MAX_TFV_WTC1(DP_MAXTF_WTC1<0)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC2(DP_MAXTF_WTC2<0)))),real(log(abs(MAX_TFV_WTC2(DP_MAXTF_WTC2<0)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC3(DP_MAXTF_WTC3<0)))),real(log(abs(MAX_TFV_WTC3(DP_MAXTF_WTC3<0)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(-ve Profile Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+
+[R1,P1] = corrcoef(real(log(abs(DP_MAXTF(DP_MAXTF<0)))),real(log(abs(M(DP_MAXTF<0)))), 'Rows', 'complete')
+[X1,Y1] = corrcoef(real(log(abs(DP_MAXTF_WTC1(DP_MAXTF_WTC1<0)))),real(log(abs(MAX_TFV_WTC1(DP_MAXTF_WTC1<0)))), 'Rows', 'complete')
+[A1,B1] = corrcoef(real(log(abs(DP_MAXTF_WTC2(DP_MAXTF_WTC2<0)))),real(log(abs(MAX_TFV_WTC2(DP_MAXTF_WTC2<0)))), 'Rows', 'complete')
+[C1,D1] = corrcoef(real(log(abs(DP_MAXTF_WTC3(DP_MAXTF_WTC3<0)))),real(log(abs(MAX_TFV_WTC3(DP_MAXTF_WTC3<0)))), 'Rows', 'complete')
+
+% for positive change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(DP_MAXTF(DP_MAXTF>0)))),real(log(abs(M(DP_MAXTF>0)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(+ve Profile Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC1(DP_MAXTF_WTC1>0)))),real(log(abs(MAX_TFV_WTC1(DP_MAXTF_WTC1>0)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC2(DP_MAXTF_WTC2>0)))),real(log(abs(MAX_TFV_WTC2(DP_MAXTF_WTC2>0)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DP_MAXTF_WTC3(DP_MAXTF_WTC3>0)))),real(log(abs(MAX_TFV_WTC3(DP_MAXTF_WTC3>0)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(+ve Profile Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+
+[R2,P2] = corrcoef(real(log(abs(DP_MAXTF(DP_MAXTF>0)))),real(log(abs(M(DP_MAXTF>0)))), 'Rows', 'complete')
+[X2,Y2] = corrcoef(real(log(abs(DP_MAXTF_WTC1(DP_MAXTF_WTC1>0)))),real(log(abs(MAX_TFV_WTC1(DP_MAXTF_WTC1>0)))), 'Rows', 'complete')
+[A2,B2] = corrcoef(real(log(abs(DP_MAXTF_WTC2(DP_MAXTF_WTC2>0)))),real(log(abs(MAX_TFV_WTC2(DP_MAXTF_WTC2>0)))), 'Rows', 'complete')
+[C2,D2] = corrcoef(real(log(abs(DP_MAXTF_WTC3(DP_MAXTF_WTC3>0)))),real(log(abs(MAX_TFV_WTC3(DP_MAXTF_WTC3>0)))), 'Rows', 'complete')
+
+%%
+% Correlating max tefseq position with difference in reads
+
+DR_MAXTF_WTC1=DR_MAXTF(Index_WT==3,:);
+DR_MAXTF_WTC2=DR_MAXTF(Index_WT==1,:);
+DR_MAXTF_WTC3=DR_MAXTF(Index_WT==2,:);
+
+% for negative change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(DR_MAXTF(DR_MAXTF<0)))),real(log(abs(I(DR_MAXTF<0)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(-ve Reads Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC1(DR_MAXTF_WTC1<0)))),real(log(abs(MAX_TFP_WTC1(DR_MAXTF_WTC1<0)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC2(DR_MAXTF_WTC2<0)))),real(log(abs(MAX_TFP_WTC2(DR_MAXTF_WTC2<0)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC3(DR_MAXTF_WTC3<0)))),real(log(abs(MAX_TFP_WTC3(DR_MAXTF_WTC3<0)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+
+[R1,P1] = corrcoef(real(log(abs(DR_MAXTF(DR_MAXTF<0)))),real(log(abs(I(DR_MAXTF<0)))), 'Rows', 'complete')
+[X1,Y1] = corrcoef(real(log(abs(DR_MAXTF_WTC1(DR_MAXTF_WTC1<0)))),real(log(abs(MAX_TFP_WTC1(DR_MAXTF_WTC1<0)))), 'Rows', 'complete')
+[A1,B1] = corrcoef(real(log(abs(DR_MAXTF_WTC2(DR_MAXTF_WTC2<0)))),real(log(abs(MAX_TFP_WTC2(DR_MAXTF_WTC2<0)))), 'Rows', 'complete')
+[C1,D1] = corrcoef(real(log(abs(DR_MAXTF_WTC3(DR_MAXTF_WTC3<0)))),real(log(abs(MAX_TFP_WTC3(DR_MAXTF_WTC3<0)))), 'Rows', 'complete')
+
+% for positive change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(DR_MAXTF(DR_MAXTF>0)))),real(log(abs(I(DR_MAXTF>0)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(+ve Reads Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC1(DR_MAXTF_WTC1>0)))),real(log(abs(MAX_TFP_WTC1(DR_MAXTF_WTC1>0)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC2(DR_MAXTF_WTC2>0)))),real(log(abs(MAX_TFP_WTC2(DR_MAXTF_WTC2>0)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC3(DR_MAXTF_WTC3>0)))),real(log(abs(MAX_TFP_WTC3(DR_MAXTF_WTC3>0)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Difference)', 'FontSize', 13);
+ylabel('log(Max TEFseq Position)', 'FontSize', 13);
+
+[R2,P2] = corrcoef(real(log(abs(DR_MAXTF(DR_MAXTF>0)))),real(log(abs(I(DR_MAXTF>0)))), 'Rows', 'complete')
+[X2,Y2] = corrcoef(real(log(abs(DR_MAXTF_WTC1(DR_MAXTF_WTC1>0)))),real(log(abs(MAX_TFP_WTC1(DR_MAXTF_WTC1>0)))), 'Rows', 'complete')
+[A2,B2] = corrcoef(real(log(abs(DR_MAXTF_WTC2(DR_MAXTF_WTC2>0)))),real(log(abs(MAX_TFP_WTC2(DR_MAXTF_WTC2>0)))), 'Rows', 'complete')
+[C2,D2] = corrcoef(real(log(abs(DR_MAXTF_WTC3(DR_MAXTF_WTC3>0)))),real(log(abs(MAX_TFP_WTC3(DR_MAXTF_WTC3>0)))), 'Rows', 'complete')
+
+%%
+% Correlating max tefseq amount with difference in reads
+
+%for negative change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(DR_MAXTF(DR_MAXTF<0)))),real(log(abs(M(DR_MAXTF<0)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(-ve Reads Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC1(DR_MAXTF_WTC1<0)))),real(log(abs(MAX_TFV_WTC1(DR_MAXTF_WTC1<0)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC2(DR_MAXTF_WTC2<0)))),real(log(abs(MAX_TFV_WTC2(DR_MAXTF_WTC2<0)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC3(DR_MAXTF_WTC3<0)))),real(log(abs(MAX_TFV_WTC3(DR_MAXTF_WTC3<0)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(-ve Reads Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+
+[R1,P1] = corrcoef(real(log(abs(DR_MAXTF(DR_MAXTF<0)))),real(log(abs(M(DR_MAXTF<0)))), 'Rows', 'complete')
+[X1,Y1] = corrcoef(real(log(abs(DR_MAXTF_WTC1(DR_MAXTF_WTC1<0)))),real(log(abs(MAX_TFV_WTC1(DR_MAXTF_WTC1<0)))), 'Rows', 'complete')
+[A1,B1] = corrcoef(real(log(abs(DR_MAXTF_WTC2(DR_MAXTF_WTC2<0)))),real(log(abs(MAX_TFV_WTC2(DR_MAXTF_WTC2<0)))), 'Rows', 'complete')
+[C1,D1] = corrcoef(real(log(abs(DR_MAXTF_WTC3(DR_MAXTF_WTC3<0)))),real(log(abs(MAX_TFV_WTC3(DR_MAXTF_WTC3<0)))), 'Rows', 'complete')
+
+% for positive change
+figure
+tiledlayout(2,2) % Requires R2019b or later
+nexttile
+scatter(real(log(abs(DR_MAXTF(DR_MAXTF>0)))),real(log(abs(M(DR_MAXTF>0)))), 6);
+title('All Genes', 'FontSize', 15);
+xlabel('log(+ve Reads Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC1(DR_MAXTF_WTC1>0)))),real(log(abs(MAX_TFV_WTC1(DR_MAXTF_WTC1>0)))), 6);
+title('Early Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC2(DR_MAXTF_WTC2>0)))),real(log(abs(MAX_TFV_WTC2(DR_MAXTF_WTC2>0)))), 6);
+title('Middle Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+nexttile
+scatter(real(log(abs(DR_MAXTF_WTC3(DR_MAXTF_WTC3>0)))),real(log(abs(MAX_TFV_WTC3(DR_MAXTF_WTC3>0)))), 6);
+title('Late Cluster', 'FontSize', 15);
+xlabel('log(+ve Reads Difference)', 'FontSize', 15);
+ylabel('log(Max TEFseq Value)', 'FontSize', 15);
+
+[R2,P2] = corrcoef(real(log(abs(DR_MAXTF(DR_MAXTF>0)))),real(log(abs(M(DR_MAXTF>0)))), 'Rows', 'complete')
+[X2,Y2] = corrcoef(real(log(abs(DR_MAXTF_WTC1(DR_MAXTF_WTC1>0)))),real(log(abs(MAX_TFV_WTC1(DR_MAXTF_WTC1>0)))), 'Rows', 'complete')
+[A2,B2] = corrcoef(real(log(abs(DR_MAXTF_WTC2(DR_MAXTF_WTC2>0)))),real(log(abs(MAX_TFV_WTC2(DR_MAXTF_WTC2>0)))), 'Rows', 'complete')
+[C2,D2] = corrcoef(real(log(abs(DR_MAXTF_WTC3(DR_MAXTF_WTC3>0)))),real(log(abs(MAX_TFV_WTC3(DR_MAXTF_WTC3>0)))), 'Rows', 'complete')
+
+%% To see how many positive and negative reads change X
+% to FCP, FCR, DP, DR for each one. Ensure the limit is 1
+% for Fold Change or 0 for Difference
+
+s1=sum(X_MAXTF_WTC1(:)>0)
+s2=sum(X_MAXTF_WTC1(:)<0)
+s3=sum(X_MAXTF_WTC2(:)>0)
+s4=sum(X_MAXTF_WTC2(:)<0)
+s5=sum(X_MAXTF_WTC3(:)>0)
+s6=sum(X_MAXTF_WTC3(:)<0)
+
+
