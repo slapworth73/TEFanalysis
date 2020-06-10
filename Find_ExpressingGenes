@@ -1,0 +1,67 @@
+function [genes] = find_expressingGenes(genes,signal,window_size)
+
+num_genes = 0;
+for chr=1:16
+    for strand=1:2
+        num_genes=num_genes+size(genes{chr,strand},1);
+    end
+end
+
+adjusted_p = 0.01/num_genes;
+
+genome_length=0;
+total_signal=0;
+squaredDiff_signal=0;
+for chr=1:16
+    for strand=1:2
+        genome_length = genome_length+length(signal{chr,strand});
+        total_signal = total_signal + sum(signal{chr,strand});
+    end
+end
+mean_signal = total_signal/genome_length;
+for chr=1:16
+    for strand=1:2
+        squaredDiff_signal = squaredDiff_signal+sum((signal{chr,strand}-mean_signal).*(signal{chr,strand}-mean_signal));
+    end
+end
+total_varSignal = squaredDiff_signal/(genome_length-1);
+expressing_genes = cell(16,2);
+for chr=1:16
+    strand=1;
+    for gene=1:size(genes{chr,strand},1)
+        try
+            gene_mean = mean(signal{chr,strand}(genes{chr,strand}(gene,1):genes{chr,strand}(gene,1)+window_size-1));
+            gene_var = std(signal{chr,strand}(genes{chr,strand}(gene,1):genes{chr,strand}(gene,1)+window_size-1))^2;
+            t = (mean_signal-gene_mean)/sqrt((gene_var/window_size)+(total_varSignal/genome_length));
+            df = (((gene_var/window_size)+(total_varSignal/genome_length))^2)/(((gene_var^2)/(window_size^3-window_size))+((total_varSignal^2)/(genome_length^3-genome_length)));
+            
+            if (tcdf(t,df)<adjusted_p)
+                expressing_genes{chr,strand} = [expressing_genes{chr,strand};genes{chr,strand}(gene,1:2)];
+                expressing_genes{chr,strand+2}{size(expressing_genes{chr,strand+2},1)+1,1}=genes{chr,strand+2}{gene};
+            end
+        end
+    end
+    
+    strand=2;
+    for gene=1:size(genes{chr,strand},1)
+        try
+           
+            gene_mean = mean(signal{chr,strand}(genes{chr,strand}(gene,1)-window_size+1:genes{chr,strand}(gene,1)));
+            gene_var = std(signal{chr,strand}(genes{chr,strand}(gene,1)-window_size+1:genes{chr,strand}(gene,1)))^2;
+            t = (mean_signal-gene_mean)/sqrt((gene_var/window_size)+(total_varSignal/genome_length));
+            df = (((gene_var/window_size)+(total_varSignal/genome_length))^2)/(((gene_var^2)/(window_size^3-window_size))+((total_varSignal^2)/(genome_length^3-genome_length)));
+            
+            if (tcdf(t,df)<adjusted_p)
+                expressing_genes{chr,strand} = [expressing_genes{chr,strand};genes{chr,strand}(gene,1:2)];
+                expressing_genes{chr,strand+2}{size(expressing_genes{chr,strand+2},1)+1,1}=genes{chr,strand+2}{gene};
+            end
+        end
+    end
+    disp(chr);
+end
+
+genes = expressing_genes;
+
+
+end
+
