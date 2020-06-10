@@ -1,0 +1,510 @@
+%load('LARGE_SPT4KO_TOTAL_GeneParamsBinned')
+%load('LARGE_WT_TOTAL_GeneParamsBinned')
+
+%% Getting parameters from PAF1KO NETseq data
+% Open Parameter_Script
+% data = WTC1_ub/WTC2_ub/WTC3_ub
+% or SPT4KO_WTC1_ub/SPT4KO_WTC2_ub/SPT4KO_WTC3_ub
+% Clusters all had different models they fit best:
+
+
+%% WTC1 and SPT4KO C1 Parameters
+WTC1_P21=WTC1_Parameters{1,21};
+SPT4KO_C1_P7=SPT4KO_C1_Parameters{1,7};
+
+% Calculating Moving Parameters for WTC1:
+WTC1_IE_Ratio=WTC1_P21(:,1)./WTC1_P21(:,2);
+%%% Window 1 Moving Ratio
+WTC1_P1=WTC1_P21(:,3);
+WTC1_R1=WTC1_P21(:,4);
+WTC1_W1MR=(WTC1_R1./(WTC1_P1 + WTC1_R1));
+%%% Site of early termination
+WTC1_ETMN_Site=WTC1_P21(:,8);
+%%% Size of 1st window
+WTC1_W1Size=WTC1_P21(:,7);
+%%% Window 2 Moving Ratio
+WTC1_P2=WTC1_P21(:,5);
+WTC1_R2=WTC1_P21(:,6);
+WTC1_W2MR=(WTC1_R2./(WTC1_P2 + WTC1_R2));
+%%% Processivity
+WTC1_Processivity=WTC1_P21(:,11)./(WTC1_P21(:,9));
+
+
+% Calculating Moving Parameters for SPT4KO C1 model 30:
+%%% IE ratio
+SPT4KO_C1_IE_Ratio=SPT4KO_C1_P7(:,1)./SPT4KO_C1_P7(:,2);
+%%% Window 1 Moving Ratio
+SPT4KO_C1_P1=SPT4KO_C1_P7(:,3);                                  
+SPT4KO_C1_R1=SPT4KO_C1_P7(:,4);                                
+SPT4KO_C1_BT1=SPT4KO_C1_P7(:,5);                              
+SPT4KO_C1_BTR1=SPT4KO_C1_P7(:,6);
+SPT4KO_C1_W1MR=(SPT4KO_C1_R1+SPT4KO_C1_BT1)./((SPT4KO_C1_P1.*(1+(SPT4KO_C1_BT1./SPT4KO_C1_BTR1)))+SPT4KO_C1_R1+SPT4KO_C1_BT1);
+%%% Site of Early Termination
+SPT4KO_C1_ETMN_Site=SPT4KO_C1_P7(:,12);
+%%% Size of 1st window
+SPT4KO_C1_W1Size=SPT4KO_C1_P7(:,11);
+%%% Window 2 Moving Ratio
+SPT4KO_C1_P2=SPT4KO_C1_P7(:,7);                                  
+SPT4KO_C1_R2=SPT4KO_C1_P7(:,8);                                
+SPT4KO_C1_BT2=SPT4KO_C1_P7(:,9);                              
+SPT4KO_C1_BTR2=SPT4KO_C1_P7(:,10);
+SPT4KO_C1_W2MR=(SPT4KO_C1_R2+SPT4KO_C1_BT2)./((SPT4KO_C1_P2.*(1+(SPT4KO_C1_BT2./SPT4KO_C1_BTR2)))+SPT4KO_C1_R2+SPT4KO_C1_BT2);
+%%% Processivity
+SPT4KO_C1_Processivity=SPT4KO_C1_P7(:,15)./SPT4KO_C1_P7(:,13);
+%
+a=[mean(WTC1_IE_Ratio),mean(WTC1_Processivity),mean(WTC1_ETMN_Site),mean(WTC1_W1Size),mean(WTC1_W1MR),mean(WTC1_W2MR);
+std(WTC1_IE_Ratio),std(WTC1_Processivity),std(WTC1_ETMN_Site),std(WTC1_W1Size),std(WTC1_W1MR),std(WTC1_W2MR);
+mean(SPT4KO_C1_IE_Ratio),mean(SPT4KO_C1_Processivity),mean(SPT4KO_C1_ETMN_Site),mean(SPT4KO_C1_W1Size),mean(SPT4KO_C1_W1MR),mean(SPT4KO_C1_W2MR);
+std(SPT4KO_C1_IE_Ratio),std(SPT4KO_C1_Processivity),std(SPT4KO_C1_ETMN_Site),std(SPT4KO_C1_W1Size),std(SPT4KO_C1_W1MR),std(SPT4KO_C1_W2MR)];
+%%
+% For each parameter: 
+% The number of genes displaying positive or negative change 
+%sum(X>0) or sum(X<0) 
+% For the mean positive difference or the mean negative difference
+%mean(X(X>0)) or mean(X(X<0) respectively. 
+% with X being being parameter variable difference name
+
+C1_IE_Ratio_Diff=(SPT4KO_C1_IE_Ratio - WTC1_IE_Ratio);
+C1_IE_Ratio_FC=(SPT4KO_C1_IE_Ratio ./ WTC1_IE_Ratio);
+C1_W1MR_Diff=(SPT4KO_C1_W1MR - WTC1_W1MR);
+C1_W1MR_FC=(SPT4KO_C1_W1MR ./ WTC1_W1MR);
+C1_ETMNSite_Diff=(SPT4KO_C1_ETMN_Site - WTC1_ETMN_Site);
+C1_ETMNSite_FC=(SPT4KO_C1_ETMN_Site ./ WTC1_ETMN_Site);
+C1_W1Size_Diff=(SPT4KO_C1_W1Size - WTC1_W1Size);
+C1_W1Size_FC=(SPT4KO_C1_W1Size ./ WTC1_W1Size);
+C1_W2MR_Diff=(SPT4KO_C1_W2MR - WTC1_W2MR);
+C1_W2MR_FC=(SPT4KO_C1_W2MR ./ WTC1_W2MR);
+C1_Processivity_Diff=(SPT4KO_C1_Processivity - WTC1_Processivity);
+C1_Processivity_FC=(SPT4KO_C1_Processivity ./ WTC1_Processivity);
+
+%%
+E_xr=[C1_IE_Ratio_Diff;C1_Processivity_Diff;C1_W1MR_Diff;C1_W2MR_Diff;];
+E_gr=[ones(size(C1_IE_Ratio_Diff));2*ones(size(C1_Processivity_Diff));3*ones(size(C1_W1MR_Diff));4*ones(size(C1_W2MR_Diff))];
+E_xl=[C1_ETMNSite_Diff;C1_W1Size_Diff];
+E_gl=[ones(size(C1_ETMNSite_Diff));2*ones(size(C1_W1Size_Diff))];
+
+%% WTC2 and SPT4KO C2 Parameters
+WTC2_P16=WTC2_Parameters{1,16};
+SPT4KO_C2_P16=SPT4KO_C2_Parameters{1,16};
+
+% Calculating Moving Parameters for WTC2 model 16:
+%%% IE Ratio
+WTC2_IE_Ratio=WTC2_P16(:,1)./WTC2_P16(:,2);
+%%% Window 1 Moving Ratio
+WTC2_P1=WTC2_P16(:,3);
+WTC2_R1=WTC2_P16(:,4);
+WTC2_W1MR=(WTC2_R1./(WTC2_P1 + WTC2_R1));
+%%% Site of early termination
+WTC2_ETMN_Site=WTC2_P16(:,8);
+%%% Size of 1st window
+WTC2_W1Size=WTC2_P16(:,7);
+%%% Window 2 Moving Ratio
+WTC2_P2=WTC2_P16(:,5);
+WTC2_R2=WTC2_P16(:,6);
+WTC2_W2MR=(WTC2_R2./(WTC2_P2 + WTC2_R2));
+%%% Processivity
+WTC2_Processivity=WTC2_P16(:,11)./(WTC2_P16(:,9));
+
+
+% Calculating Moving Parameters for SPT4KO C2 model 16:
+%%% IE ratio
+SPT4KO_C2_IE_Ratio=SPT4KO_C2_P16(:,1)./SPT4KO_C2_P16(:,2);
+%%% Window 1 Moving Ratio
+SPT4KO_C2_P1=SPT4KO_C2_P16(:,3);
+SPT4KO_C2_R1=SPT4KO_C2_P16(:,4);
+SPT4KO_C2_W1MR=(SPT4KO_C2_R1./(SPT4KO_C2_P1 + SPT4KO_C2_R1));
+%%% Site of early termination
+SPT4KO_C2_ETMN_Site=SPT4KO_C2_P16(:,8);
+%%% Size of 1st window
+SPT4KO_C2_W1Size=SPT4KO_C2_P16(:,7);
+%%% Window 2 Moving Ratio
+SPT4KO_C2_P2=SPT4KO_C2_P16(:,5);
+SPT4KO_C2_R2=SPT4KO_C2_P16(:,6);
+SPT4KO_C2_W2MR=(SPT4KO_C2_R2./(SPT4KO_C2_P2 + SPT4KO_C2_R2));
+%%% Processivity
+SPT4KO_C2_Processivity=SPT4KO_C2_P16(:,11)./(SPT4KO_C2_P16(:,9));
+%
+b=[mean(WTC2_IE_Ratio),mean(WTC2_Processivity),mean(WTC2_ETMN_Site),mean(WTC2_W1Size),mean(WTC2_W1MR),mean(WTC2_W2MR);
+std(WTC2_IE_Ratio),std(WTC2_Processivity),std(WTC2_ETMN_Site),std(WTC2_W1Size),std(WTC2_W1MR),std(WTC2_W2MR);
+mean(SPT4KO_C2_IE_Ratio),mean(SPT4KO_C2_Processivity),mean(SPT4KO_C2_ETMN_Site),mean(SPT4KO_C2_W1Size),mean(SPT4KO_C2_W1MR),mean(SPT4KO_C2_W2MR);
+std(SPT4KO_C2_IE_Ratio),std(SPT4KO_C2_Processivity),std(SPT4KO_C2_ETMN_Site),std(SPT4KO_C2_W1Size),std(SPT4KO_C2_W1MR),std(SPT4KO_C2_W2MR)];
+%%
+
+C2_IE_Ratio_Diff=(SPT4KO_C2_IE_Ratio - WTC2_IE_Ratio);
+C2_IE_Ratio_FC=(SPT4KO_C2_IE_Ratio ./ WTC2_IE_Ratio);
+C2_W1MR_Diff=(SPT4KO_C2_W1MR - WTC2_W1MR);
+C2_W1MR_FC=(SPT4KO_C2_W1MR ./ WTC2_W1MR);
+C2_ETMNSite_Diff=(SPT4KO_C2_ETMN_Site - WTC2_ETMN_Site);
+C2_ETMNSite_FC=(SPT4KO_C2_ETMN_Site ./ WTC2_ETMN_Site);
+C2_W1Size_Diff=(SPT4KO_C2_W1Size - WTC2_W1Size);
+C2_W1Size_FC=(SPT4KO_C2_W1Size ./ WTC2_W1Size);
+C2_W2MR_Diff=(SPT4KO_C2_W2MR - WTC2_W2MR);
+C2_W2MR_FC=(SPT4KO_C2_W2MR ./ WTC2_W2MR);
+C2_Processivity_Diff=(SPT4KO_C2_Processivity - WTC2_Processivity);
+C2_Processivity_FC=(SPT4KO_C2_Processivity ./ WTC2_Processivity);
+
+%
+M_xr=[C2_IE_Ratio_Diff;C2_Processivity_Diff;C2_W1MR_Diff;C2_W2MR_Diff;];
+M_gr=[ones(size(C2_IE_Ratio_Diff));2*ones(size(C2_Processivity_Diff));3*ones(size(C2_W1MR_Diff));4*ones(size(C2_W2MR_Diff))];
+M_xl=[C2_ETMNSite_Diff;C2_W1Size_Diff];
+M_gl=[ones(size(C2_ETMNSite_Diff));2*ones(size(C2_W1Size_Diff))];
+
+%% WTC3 and SPT4KO C3 Parameters
+WTC3_P7=WTC3_Parameters{1,7};
+SPT4KO_C3_P30=SPT4KO_C3_Parameters{1,30};
+
+% Calculating Moving Parameters for WTC3 model 7:
+%%% IE ratio
+WTC3_IE_Ratio=WTC3_P7(:,1)./WTC3_P7(:,2);
+%%% Window 1 Moving Ratio
+WTC3_P1=WTC3_P7(:,3);                                  
+WTC3_R1=WTC3_P7(:,4);                                
+WTC3_BT1=WTC3_P7(:,5);                              
+WTC3_BTR1=WTC3_P7(:,6);
+WTC3_W1MR=(WTC3_R1+WTC3_BT1)./((WTC3_P1.*(1+(WTC3_BT1./WTC3_BTR1)))+WTC3_R1+WTC3_BT1);
+%%% Site of Early Termination
+WTC3_ETMN_Site=WTC3_P7(:,12);
+%%% Size of 1st window
+WTC3_W1Size=WTC3_P7(:,11);
+%%% Window 2 Moving Ratio
+WTC3_P2=WTC3_P7(:,7);                                  
+WTC3_R2=WTC3_P7(:,8);                                
+WTC3_BT2=WTC3_P7(:,9);                              
+WTC3_BTR2=WTC3_P7(:,10);
+WTC3_W2MR=(WTC3_R2+WTC3_BT2)./((WTC3_P2.*(1+(WTC3_BT2./WTC3_BTR2)))+WTC3_R2+WTC3_BT2);
+%%% Processivity
+WTC3_Processivity=WTC3_P7(:,15)./WTC3_P7(:,13);
+
+
+% Calculating Moving Parameters for SPT4KO C3 model 30:
+
+%%% IE ratio
+SPT4KO_C3_IE_Ratio=SPT4KO_C3_P30(:,3)./SPT4KO_C3_P30(:,4);
+%%% Window 1 Moving Ratio
+SPT4KO_C3_P1=SPT4KO_C3_P30(:,5);                                  
+SPT4KO_C3_R1=SPT4KO_C3_P30(:,6);                                
+SPT4KO_C3_BT1=SPT4KO_C3_P30(:,7);                              
+SPT4KO_C3_BTR1=SPT4KO_C3_P30(:,8);
+SPT4KO_C3_W1MR=(SPT4KO_C3_R1+SPT4KO_C3_BT1)./((SPT4KO_C3_P1.*(1+(SPT4KO_C3_BT1./SPT4KO_C3_BTR1)))+SPT4KO_C3_R1+SPT4KO_C3_BT1);
+%%% Site of early termination
+SPT4KO_C3_ETMN_Site=SPT4KO_C3_P30(:,14);
+%%% Size of 1st window
+SPT4KO_C3_W1Size=SPT4KO_C3_P30(:,13);
+%%% Window 2 Moving Ratio
+SPT4KO_C3_P2=SPT4KO_C3_P30(:,9);                                  
+SPT4KO_C3_R2=SPT4KO_C3_P30(:,10);                                
+SPT4KO_C3_BT2=SPT4KO_C3_P30(:,11);                              
+SPT4KO_C3_BTR2=SPT4KO_C3_P30(:,12);
+SPT4KO_C3_W2MR=(SPT4KO_C3_R2+SPT4KO_C3_BT2)./((SPT4KO_C3_P2.*(1+(SPT4KO_C3_BT2./SPT4KO_C3_BTR2)))+SPT4KO_C3_R2+SPT4KO_C3_BT2);
+%%% Processivity
+SPT4KO_C3_Processivity=SPT4KO_C3_P30(:,17)./SPT4KO_C3_P30(:,15);
+%
+c=[mean(WTC3_IE_Ratio),mean(WTC3_Processivity),mean(WTC3_ETMN_Site),mean(WTC3_W1Size),mean(WTC3_W1MR),mean(WTC3_W2MR);
+std(WTC3_IE_Ratio),std(WTC3_Processivity),std(WTC3_ETMN_Site),std(WTC3_W1Size),std(WTC3_W1MR),std(WTC3_W2MR);
+mean(SPT4KO_C3_IE_Ratio),mean(SPT4KO_C3_Processivity),mean(SPT4KO_C3_ETMN_Site),mean(SPT4KO_C3_W1Size),mean(SPT4KO_C3_W1MR),mean(SPT4KO_C3_W2MR);
+std(SPT4KO_C3_IE_Ratio),std(SPT4KO_C3_Processivity),std(SPT4KO_C3_ETMN_Site),std(SPT4KO_C3_W1Size),std(SPT4KO_C3_W1MR),std(SPT4KO_C3_W2MR)];
+%%
+C3_IE_Ratio_Diff=(SPT4KO_C3_IE_Ratio - WTC3_IE_Ratio);
+C3_IE_Ratio_FC=(SPT4KO_C3_IE_Ratio ./ WTC3_IE_Ratio);
+C3_W1MR_Diff=(SPT4KO_C3_W1MR - WTC3_W1MR);
+C3_W1MR_FC=(SPT4KO_C3_W1MR ./ WTC3_W1MR);
+C3_ETMNSite_Diff=(SPT4KO_C3_ETMN_Site - WTC3_ETMN_Site);
+C3_ETMNSite_FC=(SPT4KO_C3_ETMN_Site ./ WTC3_ETMN_Site);
+C3_W1Size_Diff=(SPT4KO_C3_W1Size - WTC3_W1Size);
+C3_W1Size_FC=(SPT4KO_C3_W1Size ./ WTC3_W1Size);
+C3_W2MR_Diff=(SPT4KO_C3_W2MR - WTC3_W2MR);
+C3_W2MR_FC=(SPT4KO_C3_W2MR ./ WTC3_W2MR);
+C3_Processivity_Diff=(SPT4KO_C3_Processivity - WTC3_Processivity);
+C3_Processivity_FC=(SPT4KO_C3_Processivity ./ WTC3_Processivity);
+
+%
+L_xr=[C3_IE_Ratio_Diff;C3_Processivity_Diff;C3_W1MR_Diff;C3_W2MR_Diff;];
+L_gr=[ones(size(C3_IE_Ratio_Diff));2*ones(size(C3_Processivity_Diff));3*ones(size(C3_W1MR_Diff));4*ones(size(C3_W2MR_Diff))];
+L_xl=[C3_ETMNSite_Diff;C3_W1Size_Diff];
+L_gl=[ones(size(C3_ETMNSite_Diff));2*ones(size(C3_W1Size_Diff))];
+
+
+%%
+subplot(1,3,[1,2])
+boxplot(E_xr,E_gr)
+title('a) Early Cluster WT vs {\itspt4\Delta}: Ratio Metric Differences', 'FontSize', 16);
+set(gca,'XTickLabel',{'I/E Ratio','Processivity','W1 Moving Ratio','W2 Moving Ratio'}, 'FontSize', 12.5)
+ylabel({'Gene-wise Difference'; 'in Ratio Metrics'}, 'FontSize', 13);
+subplot(1,3,3)
+boxplot(E_xl,E_gl)
+title('Location Metric Differences', 'FontSize', 16);
+set(gca,'XTickLabel', {'Early TMN Site','W1 Size'}, 'FontSize', 12.5);
+ylabel({'Gene-wise Difference'; 'in Location Metrics'}, 'FontSize', 13);
+%%
+subplot(1,3,[1,2])
+boxplot(M_xr,M_gr)
+title('b) Middle Cluster WT vs {\itspt4\Delta}: Ratio Metric Differences', 'FontSize', 16);
+set(gca,'XTickLabel',{'I/E Ratio','Processivity','W1 Moving Ratio','W2 Moving Ratio'}, 'FontSize', 12.5)
+ylabel({'Gene-wise Difference'; 'in Ratio Metrics'}, 'FontSize', 13);
+subplot(1,3,3)
+boxplot(M_xl,M_gl)
+title('Location Metric Differences', 'FontSize', 16);
+set(gca,'XTickLabel', {'Early TMN Site','W1 Size'}, 'FontSize', 12.5);
+ylabel({'Gene-wise Difference'; 'in Location Metrics'}, 'FontSize', 13);
+%%
+subplot(1,3,[1,2])
+boxplot(L_xr,L_gr)
+title('c) Late Cluster WT vs {\itspt4\Delta}: Ratio Metric Differences', 'FontSize', 16);
+set(gca,'XTickLabel',{'I/E Ratio','Processivity','W1 Moving Ratio','W2 Moving Ratio'}, 'FontSize', 12.5)
+ylabel({'Gene-wise Difference'; 'in Ratio Metrics'}, 'FontSize', 13);
+subplot(1,3,3)
+boxplot(L_xl,L_gl)
+title('Location Metric Differences', 'FontSize', 16);
+set(gca,'XTickLabel', {'Early TMN Site','W1 Size'}, 'FontSize', 12.5);
+ylabel({'Gene-wise Difference'; 'in Location Metrics'}, 'FontSize', 13);
+
+%%
+SPT4TS_WTC1(SPT4TS_WTC1==0)=NaN;
+SPT4TS_WTC2(SPT4TS_WTC2==0)=NaN;
+SPT4TS_WTC3(SPT4TS_WTC3==0)=NaN;
+
+%% Figure for Early Cluster I/E Ratio, Processivity and Termination Site Difference
+figure
+tiledlayout(3,2) % Requires R2019b or later
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_IE_Ratio_Diff>0),2))),real(log(C1_IE_Ratio_Diff(C1_IE_Ratio_Diff>0))), 6);
+title('+ve I/E Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII (TEFseq Reads))', 'FontSize', 10);
+ylabel('log(I/E Ratio +ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_IE_Ratio_Diff<0),2))),real(log(C1_IE_Ratio_Diff(C1_IE_Ratio_Diff<0))), 6);
+title('-ve I/E Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(I/E Ratio -ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_Processivity_Diff>0),2))),real(log(C1_Processivity_Diff(C1_Processivity_Diff>0))), 6);
+title('+ve Processivity Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(Processivity +ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_Processivity_Diff<0),2))),real(log(C1_Processivity_Diff(C1_Processivity_Diff<0))), 6);
+title('-ve Processivity Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(Processivity -ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_ETMNSite_Diff>0),2))),real(log(C1_ETMNSite_Diff(C1_ETMNSite_Diff>0))), 6);
+title('+ve Early Termination Site Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(E-TMN Site +ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_ETMNSite_Diff<0),2))),real(log(C1_ETMNSite_Diff(C1_ETMNSite_Diff<0))), 6);
+title('-ve Early Termination Site Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(E-TMN Site -ve Difference)', 'FontSize', 9.2);
+
+[R,P] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_IE_Ratio_Diff>0),2))),real(log(C1_IE_Ratio_Diff(C1_IE_Ratio_Diff>0))), 'Rows', 'complete')
+[X,Y] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_IE_Ratio_Diff<0),2))),real(log(C1_IE_Ratio_Diff(C1_IE_Ratio_Diff<0))), 'Rows', 'complete')
+[A,B] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_Processivity_Diff>0),2))),real(log(C1_Processivity_Diff(C1_Processivity_Diff>0))), 'Rows', 'complete')
+[C,D] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_Processivity_Diff<0),2))),real(log(C1_Processivity_Diff(C1_Processivity_Diff<0))), 'Rows', 'complete')
+[E,F] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_ETMNSite_Diff>0),2))),real(log(C1_ETMNSite_Diff(C1_ETMNSite_Diff>0))), 'Rows', 'complete')
+[G,H] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_ETMNSite_Diff<0),2))),real(log(C1_ETMNSite_Diff(C1_ETMNSite_Diff<0))), 'Rows', 'complete')
+%% Figure for Early Cluster Window Size, W1 Moving Ratio and W2 Moving Ratio 
+figure
+tiledlayout(3,2) % Requires R2019b or later
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_W1Size_Diff>0),2))),real(log(C1_W1Size_Diff(C1_W1Size_Diff>0))), 6);
+title('+ve W1 Size Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1 Size +ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_W1Size_Diff<0),2))),real(log(C1_W1Size_Diff(C1_W1Size_Diff<0))), 6);
+title('-ve W1 Size Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1 Size -ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_W1MR_Diff>0),2))),real(log(C1_W1MR_Diff(C1_W1MR_Diff>0))), 6);
+title('+ve W1 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1MR +ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_W1MR_Diff<0),2))),real(log(C1_W1MR_Diff(C1_W1MR_Diff<0))), 6);
+title('-ve W1 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1MR -ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_W2MR_Diff>0),2))),real(log(C1_W2MR_Diff(C1_W2MR_Diff>0))), 6);
+title('+ve W2 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W2MR +ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC1(C1_W2MR_Diff<0),2))),real(log(C1_W2MR_Diff(C1_W2MR_Diff<0))), 6);
+title('-ve W2 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W2MR -ve Difference)', 'FontSize', 10);
+
+[R,P] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_W1Size_Diff>0),2))),real(log(C1_W1Size_Diff(C1_W1Size_Diff>0))), 'Rows', 'complete')
+[X,Y] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_W1Size_Diff<0),2))),real(log(C1_W1Size_Diff(C1_W1Size_Diff<0))), 'Rows', 'complete')
+[A,B] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_W1MR_Diff>0),2))),real(log(C1_W1MR_Diff(C1_W1MR_Diff>0))), 'Rows', 'complete')
+[C,D] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_W1MR_Diff<0),2))),real(log(C1_W1MR_Diff(C1_W1MR_Diff<0))), 'Rows', 'complete')
+[E,F] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_W2MR_Diff>0),2))),real(log(C1_W2MR_Diff(C1_W2MR_Diff>0))), 'Rows', 'complete')
+[G,H] = corrcoef(real(log(mean(SPT4TS_WTC1(C1_W2MR_Diff<0),2))),real(log(C1_W2MR_Diff(C1_W2MR_Diff<0))), 'Rows', 'complete')
+
+%% Figure for Middle Cluster I/E Ratio, Processivity and Termination Site
+figure
+tiledlayout(3,2) % Requires R2019b or later
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_IE_Ratio_Diff>0),2))),real(log(C2_IE_Ratio_Diff(C2_IE_Ratio_Diff>0))), 6);
+title('+ve I/E Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII (TEFseq Reads))', 'FontSize', 10);
+ylabel('log(I/E Ratio +ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_IE_Ratio_Diff<0),2))),real(log(C2_IE_Ratio_Diff(C2_IE_Ratio_Diff<0))), 6);
+title('-ve I/E Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(I/E Ratio -ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_Processivity_Diff>0),2))),real(log(C2_Processivity_Diff(C2_Processivity_Diff>0))), 6);
+title('+ve Processivity Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(Processivity +ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_Processivity_Diff<0),2))),real(log(C2_Processivity_Diff(C2_Processivity_Diff<0))), 6);
+title('-ve Processivity Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(Processivity -ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_ETMNSite_Diff>0),2))),real(log(C2_ETMNSite_Diff(C2_ETMNSite_Diff>0))), 6);
+title('+ve Early Termination Site Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(E-TMN Site +ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_ETMNSite_Diff<0),2))),real(log(C2_ETMNSite_Diff(C2_ETMNSite_Diff<0))), 6);
+title('-ve Early Termination Site Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(E-TMN Site -ve Difference)', 'FontSize', 9.2);
+
+[R,P] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_IE_Ratio_Diff>0),2))),real(log(C2_IE_Ratio_Diff(C2_IE_Ratio_Diff>0))), 'Rows', 'complete')
+[X,Y] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_IE_Ratio_Diff<0),2))),real(log(C2_IE_Ratio_Diff(C2_IE_Ratio_Diff<0))), 'Rows', 'complete')
+[A,B] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_Processivity_Diff>0),2))),real(log(C2_Processivity_Diff(C2_Processivity_Diff>0))), 'Rows', 'complete')
+[C,D] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_Processivity_Diff<0),2))),real(log(C2_Processivity_Diff(C2_Processivity_Diff<0))), 'Rows', 'complete')
+[E,F] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_ETMNSite_Diff>0),2))),real(log(C2_ETMNSite_Diff(C2_ETMNSite_Diff>0))), 'Rows', 'complete')
+[G,H] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_ETMNSite_Diff<0),2))),real(log(C2_ETMNSite_Diff(C2_ETMNSite_Diff<0))), 'Rows', 'complete')
+%% Figure for Middle Cluster Window Size, W1 Moving Ratio and W2 Moving Ratio 
+figure
+tiledlayout(3,2) % Requires R2019b or later
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_W1Size_Diff>0),2))),real(log(C2_W1Size_Diff(C2_W1Size_Diff>0))), 6);
+title('+ve W1 Size Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1 Size +ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_W1Size_Diff<0),2))),real(log(C2_W1Size_Diff(C2_W1Size_Diff<0))), 6);
+title('-ve W1 Size Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1 Size -ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_W1MR_Diff>0),2))),real(log(C2_W1MR_Diff(C2_W1MR_Diff>0))), 6);
+title('+ve W1 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1MR +ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_W1MR_Diff<0),2))),real(log(C2_W1MR_Diff(C2_W1MR_Diff<0))), 6);
+title('-ve W1 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1MR -ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_W2MR_Diff>0),2))),real(log(C2_W2MR_Diff(C2_W2MR_Diff>0))), 6);
+title('+ve W2 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W2MR +ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC2(C2_W2MR_Diff<0),2))),real(log(C2_W2MR_Diff(C2_W2MR_Diff<0))), 6);
+title('-ve W2 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W2MR -ve Difference)', 'FontSize', 10);
+
+[R,P] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_W1Size_Diff>0),2))),real(log(C2_W1Size_Diff(C2_W1Size_Diff>0))), 'Rows', 'complete')
+[X,Y] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_W1Size_Diff<0),2))),real(log(C2_W1Size_Diff(C2_W1Size_Diff<0))), 'Rows', 'complete')
+[A,B] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_W1MR_Diff>0),2))),real(log(C2_W1MR_Diff(C2_W1MR_Diff>0))), 'Rows', 'complete')
+[C,D] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_W1MR_Diff<0),2))),real(log(C2_W1MR_Diff(C2_W1MR_Diff<0))), 'Rows', 'complete')
+[E,F] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_W2MR_Diff>0),2))),real(log(C2_W2MR_Diff(C2_W2MR_Diff>0))), 'Rows', 'complete')
+[G,H] = corrcoef(real(log(mean(SPT4TS_WTC2(C2_W2MR_Diff<0),2))),real(log(C2_W2MR_Diff(C2_W2MR_Diff<0))), 'Rows', 'complete')
+
+
+%% Figure for Late Cluster I/E Ratio, Processivity and Termination Site
+figure
+tiledlayout(3,2) % Requires R2019b or later
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_IE_Ratio_Diff>0),2))),real(log(C3_IE_Ratio_Diff(C3_IE_Ratio_Diff>0))), 6);
+title('+ve I/E Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII (TEFseq Reads))', 'FontSize', 10);
+ylabel('log(I/E Ratio +ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_IE_Ratio_Diff<0),2))),real(log(C3_IE_Ratio_Diff(C3_IE_Ratio_Diff<0))), 6);
+title('-ve I/E Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(I/E Ratio -ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_Processivity_Diff>0),2))),real(log(C3_Processivity_Diff(C3_Processivity_Diff>0))), 6);
+title('+ve Processivity Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(Processivity +ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_Processivity_Diff<0),2))),real(log(C3_Processivity_Diff(C3_Processivity_Diff<0))), 6);
+title('-ve Processivity Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(Processivity -ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_ETMNSite_Diff>0),2))),real(log(C3_ETMNSite_Diff(C3_ETMNSite_Diff>0))), 6);
+title('+ve Early Termination Site Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(E-TMN Site +ve Difference)', 'FontSize', 9.2);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_ETMNSite_Diff<0),2))),real(log(C3_ETMNSite_Diff(C3_ETMNSite_Diff<0))), 6);
+title('-ve Early Termination Site Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(E-TMN Site -ve Difference)', 'FontSize', 9.2);
+
+[R,P] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_IE_Ratio_Diff>0),2))),real(log(C3_IE_Ratio_Diff(C3_IE_Ratio_Diff>0))), 'Rows', 'complete')
+[X,Y] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_IE_Ratio_Diff<0),2))),real(log(C3_IE_Ratio_Diff(C3_IE_Ratio_Diff<0))), 'Rows', 'complete')
+[A,B] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_Processivity_Diff>0),2))),real(log(C3_Processivity_Diff(C3_Processivity_Diff>0))), 'Rows', 'complete')
+[C,D] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_Processivity_Diff<0),2))),real(log(C3_Processivity_Diff(C3_Processivity_Diff<0))), 'Rows', 'complete')
+[E,F] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_ETMNSite_Diff>0),2))),real(log(C3_ETMNSite_Diff(C3_ETMNSite_Diff>0))), 'Rows', 'complete')
+[G,H] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_ETMNSite_Diff<0),2))),real(log(C3_ETMNSite_Diff(C3_ETMNSite_Diff<0))), 'Rows', 'complete')
+
+
+%% Figure for Late Cluster Window Size, W1 Moving Ratio and W2 Moving Ratio 
+figure
+tiledlayout(3,2) % Requires R2019b or later
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_W1Size_Diff>0),2))),real(log(C3_W1Size_Diff(C3_W1Size_Diff>0))), 6);
+title('+ve W1 Size Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1 Size +ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_W1Size_Diff<0),2))),real(log(C3_W1Size_Diff(C3_W1Size_Diff<0))), 6);
+title('-ve W1 Size Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1 Size -ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_W1MR_Diff>0),2))),real(log(C3_W1MR_Diff(C3_W1MR_Diff>0))), 6);
+title('+ve W1 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1MR +ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_W1MR_Diff<0),2))),real(log(C3_W1MR_Diff(C3_W1MR_Diff<0))), 6);
+title('-ve W1 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W1MR -ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_W2MR_Diff>0),2))),real(log(C3_W2MR_Diff(C3_W2MR_Diff>0))), 6);
+title('+ve W2 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W2MR +ve Difference)', 'FontSize', 10);
+nexttile
+scatter(real(log(mean(SPT4TS_WTC3(C3_W2MR_Diff<0),2))),real(log(C3_W2MR_Diff(C3_W2MR_Diff<0))), 6);
+title('-ve W2 Moving Ratio Difference', 'FontSize', 15);
+xlabel('log(Mean SPT4 Levels relative to RNAPII) (TEFseq Reads)', 'FontSize', 10);
+ylabel('log(W2MR -ve Difference)', 'FontSize', 10);
+
+[R,P] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_W1Size_Diff>0),2))),real(log(C3_W1Size_Diff(C3_W1Size_Diff>0))), 'Rows', 'complete')
+[X,Y] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_W1Size_Diff<0),2))),real(log(C3_W1Size_Diff(C3_W1Size_Diff<0))), 'Rows', 'complete')
+[A,B] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_W1MR_Diff>0),2))),real(log(C3_W1MR_Diff(C3_W1MR_Diff>0))), 'Rows', 'complete')
+[C,D] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_W1MR_Diff<0),2))),real(log(C3_W1MR_Diff(C3_W1MR_Diff<0))), 'Rows', 'complete')
+[E,F] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_W2MR_Diff>0),2))),real(log(C3_W2MR_Diff(C3_W2MR_Diff>0))), 'Rows', 'complete')
+[G,H] = corrcoef(real(log(mean(SPT4TS_WTC3(C3_W2MR_Diff<0),2))),real(log(C3_W2MR_Diff(C3_W2MR_Diff<0))), 'Rows', 'complete')
