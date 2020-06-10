@@ -1,0 +1,102 @@
+%% Compare simulations to S pombe NETseq for Paf1 KO
+
+%model_names.mat;
+%model_complexities.mat;
+%Remove negative values
+%%
+for i=1:size(SPT4KO_WTC2_ub,1)
+    SPT4KO_WTC2_ub(i,SPT4KO_WTC2_ub(i,:)<0)=0;
+end
+
+%Bin raw data
+LARGE_SPT4KO_WTC2_TOTAL_Binned = zeros(size(SPT4KO_WTC2_ub,1),100);
+for n=1:100
+    LARGE_SPT4KO_WTC2_TOTAL_Binned(:,n)=sum(SPT4KO_WTC2_ub(:,1+(n-1)*10:n*10),2);
+end
+LARGE_SPT4KO_WTC2_TOTAL_Norm=bsxfun(@rdivide,LARGE_SPT4KO_WTC2_TOTAL_Binned,sum(LARGE_SPT4KO_WTC2_TOTAL_Binned,2));
+
+LARGE_SPT4KO_WTC2_TOTAL_BinnedCumsum = cumsum(LARGE_SPT4KO_WTC2_TOTAL_Norm,2);
+
+LARGE_SPT4KO_WTC2_TOTAL_likelihoodsBinned = cell(size(model_names));
+
+LARGE_SPT4KO_WTC2_TOTAL_GeneParamsBinned = cell(size(model_names));
+
+LARGE_SPT4KO_WTC2_TOTAL_BestFitBinned = cell(size(model_names));
+
+
+no_readPenalty = 1000;
+
+for m=1:length(model_names)
+    tic;
+    model_dir = strcat('/media/chri4777/Elements/TOM_BROWN/NETSeq_simulator/',model_names{m});
+    cd(model_dir);
+    try
+        load all_PolIIDistsBinned;
+%         load model_parameterNames;
+%         load moving_polIIDists;
+        load parameter_values;
+        
+        all_PolIIDistsBinned=bsxfun(@rdivide,all_PolIIDistsBinned,sum(all_PolIIDistsBinned,2));
+        all_PolIIDistsBinned(isnan(all_PolIIDistsBinned))=-Inf;
+        LARGE_SPT4KO_WTC2_TOTAL_likelihoodsBinned{m} = zeros(size(LARGE_SPT4KO_WTC2_TOTAL_Binned,1),1);
+        LARGE_SPT4KO_WTC2_TOTAL_GeneParamsBinned{m} = zeros(size(LARGE_SPT4KO_WTC2_TOTAL_Binned,1),size(parameter_values,2));
+        LARGE_SPT4KO_WTC2_TOTAL_BestFitBinned{m} = zeros(size(LARGE_SPT4KO_WTC2_TOTAL_Binned,1),125);
+        all_PolIIDistsBinnedcumsum = cumsum(all_PolIIDistsBinned(:,26:125),2);
+        
+        for gene=1:size(LARGE_SPT4KO_WTC2_TOTAL_Binned,1)    
+            
+            CDF_diffs = bsxfun(@minus,all_PolIIDistsBinnedcumsum,LARGE_SPT4KO_WTC2_TOTAL_BinnedCumsum(gene,:));
+            KS_stat = max(abs(CDF_diffs),[],2);
+            [~,ks_idx] = min(KS_stat);
+            
+            likelihood_vec = LARGE_SPT4KO_WTC2_TOTAL_Binned(gene,:).*log(all_PolIIDistsBinned(ks_idx,26:125));
+            likelihood_vec(isnan(likelihood_vec))=0;
+            num_inf = sum(isinf(likelihood_vec));
+            likelihood_vec(isinf(likelihood_vec))=0;
+            max_likelihood = sum(likelihood_vec)-(num_inf*no_readPenalty);
+            
+            LARGE_SPT4KO_WTC2_TOTAL_likelihoodsBinned{m}(gene)=max_likelihood;
+            LARGE_SPT4KO_WTC2_TOTAL_GeneParamsBinned{m}(gene,:) = parameter_values(ks_idx,:);
+            LARGE_SPT4KO_WTC2_TOTAL_BestFitBinned{m}(gene,:) = all_PolIIDistsBinned(ks_idx,:);
+            
+        end
+    end
+    cd('/home/chri4777/Downloads');
+    save('LARGE_SPT4KO_WTC2_TOTAL_likelihoodsBinned.mat','LARGE_SPT4KO_WTC2_TOTAL_likelihoodsBinned');
+    save('LARGE_SPT4KO_WTC2_TOTAL_GeneParamsBinned.mat','LARGE_SPT4KO_WTC2_TOTAL_GeneParamsBinned');
+    save('LARGE_SPT4KO_WTC2_TOTAL_BestFitBinned.mat','LARGE_SPT4KO_WTC2_TOTAL_BestFitBinned');
+    disp(m);
+    toc
+end
+
+%%
+
+LARGE_SPT4KO_WTC2_TOTAL_BIC=zeros(length(model_names),1);
+for m=1:length(model_names)
+    LARGE_SPT4KO_WTC2_TOTAL_BIC(m,1) = log(size(LARGE_SPT4KO_WTC2_TOTAL_likelihoodsBinned{m},1))*model_complexities{m} - 2*sum(LARGE_SPT4KO_WTC2_TOTAL_likelihoodsBinned{m});
+end
+
+figure();
+plot(1:length(LARGE_SPT4KO_WTC2_TOTAL_BIC),LARGE_SPT4KO_WTC2_TOTAL_BIC,'bx','markersize',20);
+ylabel('Bayesian Information Criteria','fontsize',24);
+title('SPT4KO WTC2 NETseq Model Fits','fontsize',24);
+ax=gca;
+ax.XTick=1:length(LARGE_SPT4KO_WTC2_TOTAL_BIC);
+ax.XTickLabel=model_names;
+% xtickangle(45);
+
+LARGE_SPT4KO_WTC2_TOTAL_BIC(find(isinf(LARGE_SPT4KO_WTC2_TOTAL_BIC)))=nan;
+[~,LARGE_SPT4KO_WTC2_model] = min(LARGE_SPT4KO_WTC2_TOTAL_BIC);
+%%
+figure();
+hold on;
+plot(26:125,nanmean(bsxfun(@rdivide,LARGE_SPT4KO_WTC2_TOTAL_Binned(1:gene-1,:),sum(LARGE_SPT4KO_WTC2_TOTAL_Binned(1:gene-1,:),2)),1),'c','linewidth',10);
+plot(mean(LARGE_SPT4KO_WTC2_TOTAL_BestFitBinned{LARGE_SPT4KO_WTC2_model}(1:gene-1,:),1),'k','linewidth',5);
+title('Metagene profiles of best simulated fits, LARGE SPT4KO WTC2 NETseq','fontsize',20);
+ylabel('Mean simulated LARGE SPT4KO WTC2 NETseq reads (AU)','fontsize', 8);
+% xlim([1 125]);
+ax=gca;
+% ax.XTick=[1 25 75 120];
+% ax.XTickLabel={'-250','TSS','+500','+1,000'};
+ax.FontSize=16;
+
