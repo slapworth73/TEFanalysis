@@ -2,8 +2,6 @@ load('fischl_NETseq.mat')
 load('fischl_paf1_NETseq.mat')
 load('harry_annotations.mat')
 load('BY_paf1_TEFseq.mat')
-load('WT_NETseqNoBacktrackReleaseParams_MovingStalledBacktracked.out')
-load('WT_GeneParamsBinned.mat')
 %%
 %Conditions_Processing_Script 
 % data=fischl_paf1_NETseq called=PAF1KO_NETseq and PAF1KO_NETseq_geneNames
@@ -37,20 +35,21 @@ WT_Exp_NS=((WT_Exp - mean(WT_Exp,2))) ./ (std(WT_Exp,0,2));
 %% Clustering WT and PAF1 NETseq data
 %%% eval step
 PAF1_GeneNames=PAF1KO_NETseq_geneNames(ismember(PAF1KO_NETseq_geneNames,WT_NETseq_geneNames)==1,:);
-%Index_WT=kmeans(WT_Exp_NS,3);
+Index_WT=kmeans(WT_Exp_NS,3);
 WT_C1=WT_Exp_NS(Index_WT==3,:);
 C1_Names=PAF1_GeneNames(Index_WT==3,:);
 WT_C2=WT_Exp_NS(Index_WT==1,:);
 C2_Names=PAF1_GeneNames(Index_WT==1,:);
 WT_C3=WT_Exp_NS(Index_WT==2,:);
 C3_Names=PAF1_GeneNames(Index_WT==2,:);
+
 %% Getting unbinned data into clusters.
 % Clusters are obtained with binned data so have to bin first
 % in order to get the appropriate index.
 % Then the index can be used to extract unbinned clusters.
 WT_P_ub=WT_NETseq(ismember(WT_NETseq_geneNames,PAF1KO_NETseq_geneNames)==1,:);
 PAF1_P_ub=PAF1KO_NETseq(ismember(PAF1KO_NETseq_geneNames,WT_NETseq_geneNames)==1,:);
-
+% These will be used for parameters so save these variables
 WTC1_ub=WT_P_ub(Index_WT==3,:);
 WTC2_ub=WT_P_ub(Index_WT==1,:);
 WTC3_ub=WT_P_ub(Index_WT==2,:);
@@ -63,7 +62,8 @@ PAF1KO_WTC3_ub=PAF1_P_ub(Index_WT==2,:);
 PAF1KOB_WTC1=PAF1KO_Exp_NS(Index_WT==3,:);
 PAF1KOB_WTC2=PAF1KO_Exp_NS(Index_WT==1,:);
 PAF1KOB_WTC3=PAF1KO_Exp_NS(Index_WT==2,:); 
-%% Run PAF1TEFseqBigwig, then Conditions Processing Script 
+
+% Bin TEFseq and extract clusters
 PAF1_TS_Binned = zeros (1000:100);
 for bindex=1:100
     gbin = ((bindex*10)-9):bindex*10 ;
@@ -153,6 +153,8 @@ xticklabels({'TSS', '100', '200', '300', '400', '500', '600' '700' '800' '900' '
 hold off
 
 %% Fold Change and Difference 
+% The change is labelled X_PAF1KO for 'the change upon PAF1KO'
+& and then clusters are extracted using the WT_Index so X_WTC1/X_WTC2/X_WTC3
 % Fold Change in Profile
 FCP_PAF1KO=abs(PAF1KO_Exp_NS ./ WT_Exp_NS);
 FCP_PAF1KO(FCP_PAF1KO==0)=NaN;
@@ -187,7 +189,7 @@ DR_WTC3=DR_PAF1KO(Index_WT==2,:);
 
 
 %% Correlation of positive and negative values
-% X_PAF1KO and X_WTC1 (for all clusters)
+% A=X_PAF1KO and A=X_WTC1 (for all clusters)
 % Change X to FCP, DP, FCR, DR to investigate Fold Change Profile,
 % Difference Profile, Fold Change Reads and Difference Reads respectively
 % For Fold Change, positive and negative change is determined by values
